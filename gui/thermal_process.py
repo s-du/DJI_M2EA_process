@@ -1,5 +1,4 @@
 # import custom packages
-from tools import thermal_tools as th
 import resources as res
 
 # import Pyqt packages
@@ -36,8 +35,6 @@ class DialogOptions(QtWidgets.QDialog):
         # button actions
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
-
-
 
 
 class ThermalProcess(QtWidgets.QMainWindow):
@@ -212,33 +209,6 @@ class ThermalProcess(QtWidgets.QMainWindow):
             self.pushButton_advanced.setEnabled(True)
 
     def read_dji_image(self, img_in, raw_out):
-        def run_algo(dir, function_name, fun_txt):
-            """
-            Function that execute dji sdk exe from python (with a given series of commands in fun_txt)
-             @ parameters:
-                cloud_folder:
-                function_name:
-                fun_txt:
-
-            """
-            batpath = os.path.join(dir, function_name + ".bat")
-            with open(batpath, 'w') as OPATH:
-                OPATH.writelines(fun_txt)
-            subprocess.call([batpath], cwd=self.folder)
-            # os.remove(batpath)
-
-        function_name = 'dji_process'
-        """
-        function_txt = 'SET MY_PATH="' + str(self.sdk_tool_path) + '" \n' + '%MY_PATH% -s "' \
-                       + img_in + '"' +\
-                       ' --distance ' + str(self.dist) +\
-                       ' --humidity ' + str(self.rh) +\
-                       ' --emissivity ' + str(self.em) +\
-                       ' --reflection ' + str(self.refl_temp) +\
-                       ' -a measure -o "' + raw_out + '" --measurefmt float32'
-        """
-
-        # run_algo(self.folder, function_name, function_txt)
         subprocess.run(
             [str(self.sdk_tool_path), "-s", f"{img_in}", "-a", "measure", "-o", f"{raw_out}", "--measurefmt", "float32"],
             universal_newlines=True,
