@@ -11,6 +11,7 @@ from pathlib import Path
 import subprocess
 import numpy as np
 from PIL import Image
+from PIL import ImageFilter
 from matplotlib import cm
 from matplotlib import pyplot as plt
 
@@ -65,8 +66,10 @@ class ThermalProcess(QtWidgets.QMainWindow):
 
         self.out_of_lim = ['black', 'white', 'red']
         self.out_of_matp = ['k', 'w', 'r']
+        self.img_post = ['none','sharpen','sharpen strong' ]
         self.comboBox_colors_low.addItems(self.out_of_lim)
         self.comboBox_colors_high.addItems(self.out_of_lim)
+        self.comboBox_post.addItems(self.img_post)
         self.advanced_options = False
 
         # default thermal options:
@@ -204,6 +207,7 @@ class ThermalProcess(QtWidgets.QMainWindow):
             self.comboBox.setEnabled(True)
             self.comboBox_colors_low.setEnabled(True)
             self.comboBox_colors_high.setEnabled(True)
+            self.comboBox_post.setEnabled(True)
             self.pushButton_estimate.setEnabled(True)
             self.checkBox_rename.setEnabled(True)
             self.pushButton_advanced.setEnabled(True)
@@ -243,9 +247,9 @@ class ThermalProcess(QtWidgets.QMainWindow):
         i = self.comboBox_colors_high.currentIndex()
         user_lim_col_high = self.out_of_matp[i]
 
-        #   rename files
-        if self.checkBox_rename.isChecked():
-            rename = True
+        #   post process operation
+        k = self.comboBox_post.currentIndex()
+        post_process = self.img_post[k]
 
         # create subfolder
         desc = 'img_th_processed_' + colormap + '_' + str(round(tmin, 0)) + '_' \
@@ -273,10 +277,6 @@ class ThermalProcess(QtWidgets.QMainWindow):
             # compute new normalized temperature
             thermal_normalized = (im - tmin) / (tmax - tmin)
 
-            # thermal_normalized_bis = thermal_normalized
-            # thermal_normalized_bis[thermal_normalized_bis < 0] = 0
-            # thermal_normalized_bis[thermal_normalized_bis > 1] = 1
-
             # get colormap
             custom_cmap = cm.get_cmap(colormap, n_colors)
 
@@ -287,23 +287,17 @@ class ThermalProcess(QtWidgets.QMainWindow):
             thermal_cmap = np.uint8(thermal_cmap*255)
 
             img_thermal = Image.fromarray(thermal_cmap[:,:,[0,1,2]])
-            # thermal_filename = str(img_path)[:-4] + '_processed.JPG'
-            if not rename:
-                thermal_filename = os.path.join(self.subfolder, filename)
-            else:
-                file_count = filename[-8:-4]
-                length_number = len(str(int(file_count)))
-                print(file_count, ', length:', length_number)
-                if length_number == 1:
-                    new_file_count = '000' + str(int(file_count) - 1)
-                elif length_number == 2:
-                    new_file_count = '00' + str(int(file_count) - 1)
-                elif length_number == 3:
-                    new_file_count = '0' + str(int(file_count) - 1)
-                else:
-                    new_file_count = str(int(file_count) - 1)
-                thermal_filename = os.path.join(self.subfolder, filename[:-8] + new_file_count + '.JPG')
-            img_thermal.save(thermal_filename)
+            thermal_filename = os.path.join(self.subfolder, filename)
+
+            if post_process == 'none':
+                img_thermal.save(thermal_filename)
+            elif post_process == 'sharpen':
+                img_th_sharpened = img_thermal.filter(ImageFilter.SHARPEN)
+                img_th_sharpened.save(thermal_filename)
+            elif post_process == 'sharpen strong':
+                img_th_sharpened = img_thermal.filter(ImageFilter.SHARPEN)
+                img_th_sharpened2 = img_th_sharpened.filter(ImageFilter.SHARPEN)
+                img_th_sharpened2.save(thermal_filename)
 
             # remove raw file
             os.remove(new_raw_path)
