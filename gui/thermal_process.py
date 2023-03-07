@@ -66,7 +66,7 @@ class ThermalProcess(QtWidgets.QMainWindow):
 
         self.out_of_lim = ['black', 'white', 'red']
         self.out_of_matp = ['k', 'w', 'r']
-        self.img_post = ['none','sharpen','sharpen strong' ]
+        self.img_post = ['none','sharpen','sharpen strong','edge enhance' ]
         self.comboBox_colors_low.addItems(self.out_of_lim)
         self.comboBox_colors_high.addItems(self.out_of_lim)
         self.comboBox_post.addItems(self.img_post)
@@ -209,7 +209,6 @@ class ThermalProcess(QtWidgets.QMainWindow):
             self.comboBox_colors_high.setEnabled(True)
             self.comboBox_post.setEnabled(True)
             self.pushButton_estimate.setEnabled(True)
-            self.checkBox_rename.setEnabled(True)
             self.pushButton_advanced.setEnabled(True)
 
     def read_dji_image(self, img_in, raw_out):
@@ -253,7 +252,7 @@ class ThermalProcess(QtWidgets.QMainWindow):
 
         # create subfolder
         desc = 'img_th_processed_' + colormap + '_' + str(round(tmin, 0)) + '_' \
-               + str(round(tmax, 0))
+               + str(round(tmax, 0)) + '_' + post_process
         self.subfolder = os.path.join(self.folder, desc)
 
         if not os.path.exists(self.subfolder):
@@ -298,6 +297,9 @@ class ThermalProcess(QtWidgets.QMainWindow):
                 img_th_sharpened = img_thermal.filter(ImageFilter.SHARPEN)
                 img_th_sharpened2 = img_th_sharpened.filter(ImageFilter.SHARPEN)
                 img_th_sharpened2.save(thermal_filename)
+            elif post_process == 'edge enhance':
+                img_th_enedge = img_thermal.filter(ImageFilter.EDGE_ENHANCE)
+                img_th_enedge.save(thermal_filename)
 
             # remove raw file
             os.remove(new_raw_path)
