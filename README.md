@@ -9,8 +9,10 @@ Luckily, DJI provides a Thermal SDK, which is used here.
 ## App functionalities
 First step: choosing a folder where DJI thermal files are stored (each file should be something like DJI_XXXX_T.JPG). Then choosing the constant temperature range (one of the image can be used to fetch minimum and maximum temperatures). Finally the colormap options (color scheme and 'above/below' temperatures colors).
 
+[![Picture5.png](https://i.postimg.cc/d3grcMJ3/Picture5.png)](https://postimg.cc/Mfbv1FMJ)
+
 Enjoy!
 NB: The advanced settings needs to be updated with the new SDK version.
 
-![drone-a.png](https://i.postimg.cc/MKtT1HQb/drone-a.png)
+
 
